@@ -68,7 +68,7 @@ Four analysis decisions do the real work:
 
 **Transient exclusion by time, not point count.** Immediately after each current
 switch there is a fast ohmic jump that isn't part of the electrochemical response.
-It's excluded by discarding samples recorded within 1.0 ms (cathodic) or 0.35 ms
+It's excluded by discarding samples recorded within 0.9 ms (cathodic) or 0.35 ms
 (reverse) of pulse start. A time criterion is necessary because EC-Lab's
 threshold-based recording sometimes stores only 3–4 unevenly spaced points per
 pulse late in a run, so a fixed point offset would cut inconsistently.
