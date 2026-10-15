@@ -20,43 +20,38 @@ happens right after the current switches direction (the "switching transient").
 The transient is removed by a TIME criterion, not by a point count, because
 EC-Lab's threshold-based recording sometimes stores only 3-4 unevenly spaced
 points per pulse later in a run:
-    Ns=0 : use points recorded >= 1.0 ms after the pulse starts
+    Ns=0 : use points recorded >= 0.9 ms after the pulse starts
     Ns=2 : use points recorded >= 0.35 ms after the pulse starts
 
 Experiment pauses are removed from the time axis: any gap between two
 consecutive data points longer than PAUSE_GAP_S (default 0.5 s; normal gaps are
 <= ~30 ms) is treated as a pause and subtracted, giving an "effective time".
 
-NEW IN THIS VERSION (stir bar / speed / position study)
----------------------------------------------------------
-Your EC-Lab experiment names now encode the variables under test, e.g.:
+STIR BAR / SPEED / POSITION STUDY
+---------------------------------
+Experiment file names encode the variables under test, e.g.:
     "Stirring bar and speed experiment 1 stir 1500rpm middle small_C05.mpr"
-    "Stirring bar and speed experiment 1 stir 1000 rpm middle small_C04.mpr"
-instead of the old "..._2ms_2ms_<descriptor>_705F..." naming. `parse_conditions()`
-pulls out:
+`parse_conditions()` extracts:
     stir_bar : 'none' | 'small' | 'medium' | 'large' | 'unknown'
     rpm      : int or None
     position : 'middle' | 'close' | 'unknown'
-from the file name (case-insensitive, tolerant of "1500rpm" vs "1500 rpm").
-CHECK THE PRINTED WARNINGS the first time you run this on a new batch of files -
-any 'unknown' means the keyword list below didn't recognize your naming and you
-should either rename the file or add a keyword to STIR_BAR_KEYWORDS / POSITION_KEYWORDS.
+(case-insensitive; tolerates "1500rpm" vs "1500 rpm"). Any 'unknown' prints a
+warning - rename the file or extend STIR_BAR_KEYWORDS / POSITION_KEYWORDS.
 
-Because your last run was left going 4 h instead of 2 h, Ewe eventually ran out of
-its normal pulsing envelope and pinned against the instrument's compliance/E-range
-limit -- i.e. the cell could no longer sustain the programmed current by reducing
-Cu2+ alone (mass-transport / reactant depletion at the cathode, exactly what the
-stirring study is meant to probe) and the electrode moved into a different regime
-(commonly H2 evolution / water breakdown territory). Delta E values recorded after
-that point are not representative of real deposition behaviour and will skew any
-comparison across stir conditions if left in. `detect_collapse()` flags the time
-this happens (looking for the point where the pulse envelope permanently leaves its
-initial band) so it can be (a) marked on the per-file plot and (b) excluded from the
-steady-state summary statistics used for cross-condition comparison.
+COLLAPSE DETECTION
+------------------
+In long runs, Ewe can leave its normal pulsing envelope and pin against the
+instrument's compliance limit: the cell can no longer sustain the programmed
+current by reducing Cu2+ alone (mass-transport / reactant depletion at the
+cathode), and the electrode shifts into a different regime (e.g. H2 evolution).
+Delta E after this point does not reflect deposition behaviour, so
+`detect_collapse()` flags when the pulse envelope permanently leaves its
+initial band. That time is marked on the per-file plot and excluded from the
+steady-state statistics used for cross-condition comparison.
 
 OUTPUT (written to outdir)
 ---------------------------------------
-Per file (next to each .mpr, same as before, plus a collapse marker):
+Per file (written next to each .mpr):
   <name>_deltaE_vs_t.png        two panels: Delta E vs effective time for Ns=0 and Ns=2
                                 (light trace = every pulse, bold trace = binned average,
                                  dashed vertical line = detected collapse time, if any)
@@ -95,7 +90,7 @@ import pandas as pd
 from galvani import BioLogic
 
 # ----------------------------- settings -------------------------------------
-T_SKIP_NS0 = 0.0009    # s; ignore the first ~1 ms of each Ns=0 pulse (transient)
+T_SKIP_NS0 = 0.0009    # s; ignore the first ~0.9 ms of each Ns=0 pulse (transient)
 T_SKIP_NS2 = 0.00035   # s; ignore the first ~0.4 ms of each Ns=2 pulse (transient)
 PAUSE_GAP_S = 0.5      # s; a recording gap longer than this counts as a pause
 NBINS = 4000           # number of time bins for the smoothed trend line
