@@ -91,7 +91,7 @@ from galvani import BioLogic
 
 # ----------------------------- settings -------------------------------------
 T_SKIP_NS0 = 0.0009    # s; ignore the first ~0.9 ms of each Ns=0 pulse (transient)
-T_SKIP_NS2 = 0.00035   # s; ignore the first ~0.4 ms of each Ns=2 pulse (transient)
+T_SKIP_NS2 = 0.00035   # s; ignore the first ~0.35 ms of each Ns=2 pulse (transient)
 PAUSE_GAP_S = 0.5      # s; a recording gap longer than this counts as a pause
 NBINS = 4000           # number of time bins for the smoothed trend line
 LABEL_NS0 = "Seq 0: $-$500 mA/cm$^2$, 10 ms pulse"
